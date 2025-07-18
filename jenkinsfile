@@ -1,81 +1,89 @@
-// This defines a Declarative Pipeline
+// This defines a Declarative Pipeline structure.
 pipeline {
-    // Specifies where the pipeline will run. 'any' means any available Jenkins agent/node.
+    // 'agent any' means this pipeline can run on any available Jenkins agent (like your Built-In Node).
     agent any
 
-    // Define environment variables if needed for your build/test process.
-    // For example, if you were building a Node.js project, you might set:
-    // environment {
-    //     NODE_ENV = 'production'
-    // }
+    // Environment variables can be defined here if your build/test process needs them.
+    // Example: environment { NODE_VERSION = '18' }
+    environment {
+        // No specific environment variables needed for this basic example.
+    }
 
-    // Define the stages of your pipeline
+    // Define the stages (logical steps) of your pipeline.
     stages {
-        // Stage 1: Checkout (Getting the code from Git)
+        // Stage 1: Checkout - Gets the source code from your Git repository.
         stage('Checkout') {
             steps {
-                echo "Checking out code from GitHub..."
-                // This command checks out the code from the SCM configured in the job.
-                // IMPORTANT: Replace 'github-ssh-key-for-my-ci-project' with the actual ID
-                // of your SSH private key credential in Jenkins.
+                echo "Starting code checkout from GitHub..."
+                // This 'git' step checks out the code.
+                // IMPORTANT: Ensure 'github-ssh-key-for-my-ci-project' exactly matches
+                // the ID of your SSH private key credential in Jenkins.
                 git branch: 'main', url: 'git@github.com:sanjay51318/My-CI-Project.git', credentialsId: 'github-ssh-key-for-my-ci-project'
-                echo "Code checkout complete."
+                echo "Code checkout completed successfully."
             }
         }
 
-        // Stage 2: Build
+        // Stage 2: Build - Placeholder for your project's build commands.
         stage('Build') {
             steps {
                 echo "Starting the build process..."
-                // --- REPLACE WITH YOUR ACTUAL BUILD COMMAND(S) ---
+                // --- REPLACE THIS SECTION WITH YOUR ACTUAL BUILD COMMAND(S) ---
                 // Examples:
-                // For a simple script: sh './scripts/build.sh'
-                // For a Java project with Maven: sh 'mvn clean install -DskipTests'
-                // For a Node.js project: sh 'npm install && npm run build'
-                // For a Python project (e.g., creating a package): sh 'python setup.py sdist bdist_wheel'
-                // For demonstration, let's just create a dummy build artifact:
-                sh 'echo "Build artifact content" > my-app.jar' // Dummy artifact
+                // sh 'mvn clean install -DskipTests'  // For a Java Maven project
+                // sh 'npm install && npm run build'   // For a Node.js project
+                // sh 'python setup.py sdist bdist_wheel' // For a Python project
+                // sh 'bash ./build_script.sh'         // For a custom shell script
+
+                // For demonstration, we'll create a dummy build artifact:
+                sh 'echo "This is my compiled application content." > my-app.jar'
                 echo "Build step completed."
             }
         }
 
-        // Stage 3: Test
+        // Stage 3: Test - Placeholder for your project's testing commands.
         stage('Test') {
             steps {
                 echo "Starting the test process..."
-                // --- REPLACE WITH YOUR ACTUAL TEST COMMAND(S) ---
+                // --- REPLACE THIS SECTION WITH YOUR ACTUAL TEST COMMAND(S) ---
                 // Examples:
-                // For Node.js: sh 'npm test'
-                // For Python: sh 'pytest' or 'python -m unittest discover'
-                // For Java (if tests were skipped in build): sh 'mvn test'
-                // For demonstration, let's just create a dummy test report:
-                sh 'echo "Test results: All tests passed" > test-report.xml' // Dummy test report
+                // sh 'npm test'   // For a Node.js project
+                // sh 'pytest'     // For a Python project
+                // sh 'mvn test'   // For a Java Maven project
+
+                // For demonstration, we'll create a dummy test report file:
+                sh 'echo "<testsuite><testcase name=\\"dummyTest\\" time=\\"0.1\\"/></testsuite>" > test-report.xml'
                 echo "Test step completed."
             }
         }
     }
 
-    // Post-build actions (runs after all stages, regardless of success or failure)
+    // Post-build actions: These steps run after all stages have completed,
+    // regardless of whether the build succeeded or failed.
     post {
+        // 'always' block runs regardless of build status.
         always {
             echo 'Pipeline finished. Archiving artifacts and logs.'
-            // Archive any files you want to save from the workspace.
-            // This will archive 'my-app.jar' (our dummy artifact) and 'test-report.xml' (our dummy test report).
-            // It also includes any files ending with '.log' and allows empty matches.
-            archiveArtifacts artifacts: 'my-app.jar, test-report.xml, **/*.log', allowEmpty: true
+            // Archives specified files from the workspace.
+            // 'artifacts' defines what to archive.
+            // 'allowEmptyArchive: true' prevents a build failure if no matching files are found.
+            archiveArtifacts artifacts: 'my-app.jar, test-report.xml, **/*.log', allowEmptyArchive: true
         }
+        // 'success' block runs only if the entire pipeline completes successfully.
         success {
             echo 'Pipeline completed successfully!'
         }
+        // 'failure' block runs if any stage in the pipeline fails.
         failure {
-            echo 'Pipeline failed! Check console output for details.'
-            // You could add actions here like sending notifications or deploying to a failure environment.
+            echo 'Pipeline failed! Please check the console output for errors.'
+            // You could add steps here for notifications (e.g., email, Slack).
         }
+        // 'unstable' block runs if the build was successful but some tests failed (e.g., jUnit reports).
         unstable {
-            echo 'Pipeline completed with unstable results (e.g., tests failed but build passed).'
+            echo 'Pipeline completed with unstable results (e.g., tests failed).'
         }
+        // 'aborted' block runs if the pipeline was manually stopped.
         aborted {
-            echo 'Pipeline was aborted manually.'
+            echo 'Pipeline was manually aborted.'
         }
     }
 }
