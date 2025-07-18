@@ -19,7 +19,7 @@ pipeline {
                 // This 'git' step checks out the code.
                 // IMPORTANT: Ensure 'github-ssh-key-for-my-ci-project' exactly matches
                 // the ID of your SSH private key credential in Jenkins.
-                git branch: 'main', url: 'git@github.com:sanjay51318/My-CI-Project.git', credentialsId: 'github-ssh-key-for-my-ci-project'
+                git branch: 'main', url: 'git@github.com:sanjay51318/My-CI-Project.git', credentialsId: 'f8de2245-1698-4ffc-a753-3760b6448254'
                 echo "Code checkout completed successfully."
             }
         }
