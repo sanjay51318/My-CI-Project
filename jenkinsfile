@@ -1,1 +1,81 @@
+// This defines a Declarative Pipeline
+pipeline {
+    // Specifies where the pipeline will run. 'any' means any available Jenkins agent/node.
+    agent any
 
+    // Define environment variables if needed for your build/test process.
+    // For example, if you were building a Node.js project, you might set:
+    // environment {
+    //     NODE_ENV = 'production'
+    // }
+
+    // Define the stages of your pipeline
+    stages {
+        // Stage 1: Checkout (Getting the code from Git)
+        stage('Checkout') {
+            steps {
+                echo "Checking out code from GitHub..."
+                // This command checks out the code from the SCM configured in the job.
+                // IMPORTANT: Replace 'github-ssh-key-for-my-ci-project' with the actual ID
+                // of your SSH private key credential in Jenkins.
+                git branch: 'main', url: 'git@github.com:sanjay51318/My-CI-Project.git', credentialsId: 'github-ssh-key-for-my-ci-project'
+                echo "Code checkout complete."
+            }
+        }
+
+        // Stage 2: Build
+        stage('Build') {
+            steps {
+                echo "Starting the build process..."
+                // --- REPLACE WITH YOUR ACTUAL BUILD COMMAND(S) ---
+                // Examples:
+                // For a simple script: sh './scripts/build.sh'
+                // For a Java project with Maven: sh 'mvn clean install -DskipTests'
+                // For a Node.js project: sh 'npm install && npm run build'
+                // For a Python project (e.g., creating a package): sh 'python setup.py sdist bdist_wheel'
+                // For demonstration, let's just create a dummy build artifact:
+                sh 'echo "Build artifact content" > my-app.jar' // Dummy artifact
+                echo "Build step completed."
+            }
+        }
+
+        // Stage 3: Test
+        stage('Test') {
+            steps {
+                echo "Starting the test process..."
+                // --- REPLACE WITH YOUR ACTUAL TEST COMMAND(S) ---
+                // Examples:
+                // For Node.js: sh 'npm test'
+                // For Python: sh 'pytest' or 'python -m unittest discover'
+                // For Java (if tests were skipped in build): sh 'mvn test'
+                // For demonstration, let's just create a dummy test report:
+                sh 'echo "Test results: All tests passed" > test-report.xml' // Dummy test report
+                echo "Test step completed."
+            }
+        }
+    }
+
+    // Post-build actions (runs after all stages, regardless of success or failure)
+    post {
+        always {
+            echo 'Pipeline finished. Archiving artifacts and logs.'
+            // Archive any files you want to save from the workspace.
+            // This will archive 'my-app.jar' (our dummy artifact) and 'test-report.xml' (our dummy test report).
+            // It also includes any files ending with '.log' and allows empty matches.
+            archiveArtifacts artifacts: 'my-app.jar, test-report.xml, **/*.log', allowEmpty: true
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Check console output for details.'
+            // You could add actions here like sending notifications or deploying to a failure environment.
+        }
+        unstable {
+            echo 'Pipeline completed with unstable results (e.g., tests failed but build passed).'
+        }
+        aborted {
+            echo 'Pipeline was aborted manually.'
+        }
+    }
+}
