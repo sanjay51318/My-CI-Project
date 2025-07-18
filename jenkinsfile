@@ -7,6 +7,7 @@ pipeline {
     // Example: environment { NODE_VERSION = '18' }
     environment {
         // No specific environment variables needed for this basic example.
+        DUMMY_VAR = 'true'
     }
 
     // Define the stages (logical steps) of your pipeline.
