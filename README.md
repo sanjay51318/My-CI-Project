@@ -1,4 +1,3 @@
 # My-CI-Project
 The Repo is to deploy CI/CD Automation to the codE.
-
-Check Jenkins
+Confiming the test cases in jenkins job
